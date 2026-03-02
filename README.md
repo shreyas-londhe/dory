@@ -17,7 +17,7 @@ Dory is a transparent polynomial commitment scheme with excellent asymptotic per
 - **Performance-optimized**: Vectorized operations, optional prepared point caching, and parallelization with Rayon
 - **Flexible matrix layouts**: Supports both square and non-square matrices (nu ≤ sigma)
 - **Homomorphic properties**: Commitment linearity enables proof aggregation
-- **Zero-knowledge mode**: Toggable hiding proofs
+- **Zero-knowledge mode**: Toggleable hiding proofs
 
 ## Installation
 

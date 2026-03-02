@@ -6,7 +6,7 @@
 /// First prover message in the Dory-Reduce protocol (Section 3.2)
 ///
 /// Contains D₁L, D₁R, D₂L, D₂R, E₁β, E₂β
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct FirstReduceMessage<G1, G2, GT> {
     /// D₁L - left pairing for first set
     pub d1_left: GT,
@@ -25,7 +25,7 @@ pub struct FirstReduceMessage<G1, G2, GT> {
 /// Second prover message in the Dory-Reduce protocol (Section 3.2)
 ///
 /// Contains C₊, C₋, E₁₊, E₁₋, E₂₊, E₂₋
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct SecondReduceMessage<G1, G2, GT> {
     /// C₊ - plus combination
     pub c_plus: GT,
@@ -44,7 +44,7 @@ pub struct SecondReduceMessage<G1, G2, GT> {
 /// Vector-Matrix-Vector message for polynomial commitment transformation
 ///
 /// Contains C, D₂, E₁. Note: E₂ can be computed by verifier as y·Γ₂,fin
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct VMVMessage<G1, GT> {
     /// C = e(MSM(T_vec', v_vec), Γ₂,fin)
     pub c: GT,
@@ -57,7 +57,7 @@ pub struct VMVMessage<G1, GT> {
 /// Final scalar product message (Section 3.1)
 ///
 /// Contains E₁, E₂ for the final pairing verification
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct ScalarProductMessage<G1, G2> {
     /// E₁ - final G1 element
     pub e1: G1,
@@ -67,7 +67,7 @@ pub struct ScalarProductMessage<G1, G2> {
 
 /// Σ-protocol 1: proves E2 and y_com commit to the same y.
 #[cfg(feature = "zk")]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub struct Sigma1Proof<G1, G2, F> {
     pub a1: G2,
@@ -79,7 +79,7 @@ pub struct Sigma1Proof<G1, G2, F> {
 
 /// Σ-protocol 2: proves e(E1, Γ2,fin) - D2 = e(H1, t1·Γ2,fin + t2·H2).
 #[cfg(feature = "zk")]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub struct Sigma2Proof<F, GT> {
     pub a: GT,
@@ -88,7 +88,7 @@ pub struct Sigma2Proof<F, GT> {
 }
 
 /// ZK scalar product proof: proves (C, D1, D2) are consistent with blinded v1, v2.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub struct ScalarProductProof<G1, G2, F, GT> {
     pub p1: GT,

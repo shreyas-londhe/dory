@@ -56,11 +56,7 @@ fn test_transparent_proof_roundtrip_compressed() {
     assert_eq!(buf.len(), proof.compressed_size());
 
     let decoded = ArkDoryProof::deserialize_compressed(&buf[..]).unwrap();
-
-    assert_eq!(proof.nu, decoded.nu);
-    assert_eq!(proof.sigma, decoded.sigma);
-    assert_eq!(proof.first_messages.len(), decoded.first_messages.len());
-    assert_eq!(proof.second_messages.len(), decoded.second_messages.len());
+    assert_eq!(proof, decoded);
 }
 
 #[test]
@@ -72,8 +68,7 @@ fn test_transparent_proof_roundtrip_uncompressed() {
     assert_eq!(buf.len(), proof.uncompressed_size());
 
     let decoded = ArkDoryProof::deserialize_uncompressed(&buf[..]).unwrap();
-    assert_eq!(proof.nu, decoded.nu);
-    assert_eq!(proof.sigma, decoded.sigma);
+    assert_eq!(proof, decoded);
 }
 
 #[test]
@@ -180,13 +175,7 @@ mod zk_roundtrip {
         assert_eq!(buf.len(), proof.compressed_size());
 
         let decoded = ArkDoryProof::deserialize_compressed(&buf[..]).unwrap();
-        assert_eq!(proof.nu, decoded.nu);
-        assert_eq!(proof.sigma, decoded.sigma);
-        assert!(decoded.e2.is_some());
-        assert!(decoded.y_com.is_some());
-        assert!(decoded.sigma1_proof.is_some());
-        assert!(decoded.sigma2_proof.is_some());
-        assert!(decoded.scalar_product_proof.is_some());
+        assert_eq!(proof, decoded);
     }
 
     #[test]

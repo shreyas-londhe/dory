@@ -16,7 +16,7 @@ use crate::primitives::arithmetic::Group;
 ///
 /// The proof includes the matrix dimensions (nu, sigma) used during proof generation,
 /// which the verifier uses to ensure consistency with the evaluation point.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 #[allow(missing_docs)]
 pub struct DoryProof<G1: Group, G2, GT> {
     /// Vector-Matrix-Vector message for PCS transformation
@@ -37,14 +37,19 @@ pub struct DoryProof<G1: Group, G2, GT> {
     /// Log₂ of number of columns in the coefficient matrix
     pub sigma: usize,
 
+    /// Blinded E₂ element for zero-knowledge proofs
     #[cfg(feature = "zk")]
     pub e2: Option<G2>,
+    /// Pedersen commitment to the blinding vector y
     #[cfg(feature = "zk")]
     pub y_com: Option<G1>,
+    /// Σ₁ proof: E₂ and y_com commit to the same y
     #[cfg(feature = "zk")]
     pub sigma1_proof: Option<Sigma1Proof<G1, G2, G1::Scalar>>,
+    /// Σ₂ proof: consistency of E₁ with D₂
     #[cfg(feature = "zk")]
     pub sigma2_proof: Option<Sigma2Proof<G1::Scalar, GT>>,
+    /// ZK scalar product proof: (C, D₁, D₂) consistency with blinded vectors
     #[cfg(feature = "zk")]
     pub scalar_product_proof: Option<ScalarProductProof<G1, G2, G1::Scalar, GT>>,
 }
