@@ -17,8 +17,8 @@ pub use ark_group::{ArkG1, ArkG2, ArkGT, G1Routines, G2Routines};
 pub use ark_pairing::BN254;
 pub use ark_poly::ArkworksPolynomial;
 pub use ark_setup::{ArkworksProverSetup, ArkworksVerifierSetup};
-pub use domain::{dory_prover, dory_verifier};
-pub use spongefish::{CheckedProverState, CheckedVerifierState};
+pub use domain::{dory_pattern, dory_prover, dory_verifier};
+pub use spongefish::{CheckedProverState, CheckedVerifierState, PatternBuilder};
 
 #[cfg(feature = "cache")]
 pub use ark_cache::{get_prepared_cache, init_cache, is_cached, PreparedCache};

@@ -13,7 +13,7 @@
 //! nesting, giving clear diagnostic paths like `"zk::sigma1::challenge"`.
 
 use ark_bn254::{Fq12, Fr, G1Projective, G2Projective};
-use spongefish::{CheckedProverState, CheckedVerifierState, InteractionPattern, PatternBuilder};
+use spongefish::{CheckedProverState, CheckedVerifierState, PatternBuilder};
 
 /// Encode protocol parameters into an instance byte array for domain binding.
 ///
@@ -96,18 +96,16 @@ fn scalar_product_proof_pattern(b: &mut PatternBuilder) {
 // Top-level pattern composition
 // ---------------------------------------------------------------------------
 
-/// Declare the interaction pattern for a Dory evaluation proof.
+/// Add Dory's interaction pattern to an existing `PatternBuilder`.
 ///
-/// Composes sub-protocol patterns (sigma proofs, reduce rounds, scalar product)
-/// into the full protocol using scoped nesting. Diagnostic paths look like
-/// `"zk::sigma1::challenge"` or `"round-0::beta"`.
+/// Use this when composing Dory as a sub-protocol inside a larger protocol
+/// (e.g., Jolt). The caller wraps this in a `scope("dory", ...)` to get
+/// diagnostic paths like `"dory::vmv::c"` or `"dory::round-0::beta"`.
 ///
-/// # Parameters
-/// - `sigma`: Log₂ of number of columns (determines number of reduce rounds)
-/// - `zk`: Whether zero-knowledge mode is enabled
-fn dory_pattern(sigma: usize, zk: bool) -> InteractionPattern {
-    let mut b = PatternBuilder::new();
-
+/// This writes the same messages as the standalone pattern but into a builder
+/// owned by the caller, enabling pattern composition without a separate
+/// domain separator.
+pub fn dory_pattern(b: &mut PatternBuilder, sigma: usize, zk: bool) {
     // Public inputs
     b.public_message::<[u8; 4]>("nu");
     b.public_message::<[u8; 4]>("sigma");
@@ -148,8 +146,6 @@ fn dory_pattern(sigma: usize, zk: bool) -> InteractionPattern {
         b.prover_message::<G2Projective>("e2");
     });
     b.verifier_message::<Fr>("d");
-
-    b.finalize()
 }
 
 /// Create a checked Dory prover state with the standard hash.
@@ -162,7 +158,11 @@ fn dory_pattern(sigma: usize, zk: bool) -> InteractionPattern {
 /// followed, then extract proof bytes via `.narg_string().to_vec()`.
 pub fn dory_prover(sigma: usize, zk: bool) -> CheckedProverState {
     let instance = dory_instance(sigma, zk);
-    let pattern = dory_pattern(sigma, zk);
+    let pattern = {
+        let mut b = PatternBuilder::new();
+        dory_pattern(&mut b, sigma, zk);
+        b.finalize()
+    };
     let inner = spongefish::domain_separator!("dory-pcs-v2")
         .instance(&instance)
         .std_prover();
@@ -179,7 +179,11 @@ pub fn dory_prover(sigma: usize, zk: bool) -> CheckedProverState {
 /// 2. All proof bytes were consumed (returns `Err` if trailing bytes exist)
 pub fn dory_verifier(sigma: usize, zk: bool, proof_bytes: &[u8]) -> CheckedVerifierState<'_> {
     let instance = dory_instance(sigma, zk);
-    let pattern = dory_pattern(sigma, zk);
+    let pattern = {
+        let mut b = PatternBuilder::new();
+        dory_pattern(&mut b, sigma, zk);
+        b.finalize()
+    };
     let inner = spongefish::domain_separator!("dory-pcs-v2")
         .instance(&instance)
         .std_verifier(proof_bytes);
@@ -200,17 +204,23 @@ mod tests {
         let _prover = dory_prover(4, true);
     }
 
+    fn finalize(sigma: usize, zk: bool) -> spongefish::InteractionPattern {
+        let mut b = PatternBuilder::new();
+        dory_pattern(&mut b, sigma, zk);
+        b.finalize()
+    }
+
     #[test]
     fn pattern_round_count_increases_with_sigma() {
-        let p1 = dory_pattern(2, false);
-        let p2 = dory_pattern(3, false);
+        let p1 = finalize(2, false);
+        let p2 = finalize(3, false);
         assert!(p2.len() > p1.len());
     }
 
     #[test]
     fn zk_pattern_larger_than_transparent() {
-        let transparent = dory_pattern(4, false);
-        let zk = dory_pattern(4, true);
+        let transparent = finalize(4, false);
+        let zk = finalize(4, true);
         assert!(zk.len() > transparent.len());
     }
 }
